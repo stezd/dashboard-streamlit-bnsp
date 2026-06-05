@@ -41,10 +41,10 @@ df_f = df[mask]
 # ── Tab 1: Ringkasan ───────────────────────────────────────
 st.title("Dashboard Dampak AI pada Mahasiswa")
 
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["Ringkasan", "Dampak AI (Q1,Q5,Q7)", "Kesehatan Mental (Q3,Q4)", "Retensi Pengetahuan (Q2)", "Pola Belajar (Q6)"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["\U0001f4ca Overview", "\U0001f4c8 Dampak AI", "\U0001f9e0 Kesehatan Mental", "\U0001f4da Retensi Pengetahuan", "\u26a0\ufe0f Profil Risiko"])
 
 with tab1:
-    st.header("Ringkasan & KPI")
+    st.header("Overview: Distribusi & KPI")
 
     c1, c2, c3 = st.columns(3)
     c1.metric("Rata-rata GPA Akhir", f"{df_f['Post_Semester_GPA'].mean():.3f}")
@@ -72,27 +72,27 @@ with tab1:
         fig = px.histogram(df_f, x="Institutional_Policy", title="Distribusi Kebijakan Institusi")
         st.plotly_chart(fig, use_container_width=True)
 
-# ── Tab 2: Dampak AI (Q1, Q5, Q7) ─────────────────────────
+# ── Tab 2: Dampak AI ───────────────────────────────────────
 with tab2:
     st.header("Dampak AI terhadap Performa Akademik")
 
     with st.expander("Apa artinya?", expanded=False):
-        st.info("Intensitas jam AI tidak memengaruhi GPA. Tipe penggunaan AI sedikit berpengaruh: mahasiswa yang pakai AI untuk debugging nilainya 0.1 poin lebih tinggi dibanding yang minta jawaban langsung. Langganan premium vs gratis: tidak ada bedanya.")
+        st.info("Intensitas jam AI tidak memengaruhi GPA. Yang membedakan adalah **cara** penggunaan AI: mahasiswa yang pakai AI untuk debugging nilainya lebih tinggi dibanding yang minta jawaban langsung. Langganan premium vs gratis: tidak ada bedanya. Jam belajar tradisional tetap berkorelasi positif dengan GPA di semua tipe penggunaan AI.")
         with st.expander("Detail Statistik"):
             st.markdown("""
             **Q1: Weekly_GenAI_Hours vs Post_Semester_GPA**  
             Pearson r = -0.0186, p = 0.00003, r2 = 0.0003  
-            Signifikan (Bonferroni alpha = 0.05/7), effect size diabaikan.  
-            Tidak ada hubungan linier yang berarti.
+            Signifikan (Bonferroni), effect size diabaikan. Tidak ada hubungan linier.
 
             **Q5: Primary_Use_Case vs Post_Semester_GPA**  
-            One-way ANOVA: F(4, 49995) = 49.56, p = 0.000, eta2 = 0.004 (kecil)  
-            Tukey HSD: Debugging/Troubleshooting (M = 3.396) di atas semua use case lain.  
-            Direct_Answer_Generation (M = 3.294) di bawah semua kecuali Copywriting.
+            One-way ANOVA: F = 49.56, p = 0.000, eta2 = 0.004 (kecil)  
+            Tukey HSD: Debugging/Troubleshooting (M = 3.396) > semua; Direct_Answer (M = 3.294) < semua.
+
+            **Q6: Traditional_Study_Hours vs Post_GPA per Use Case**  
+            Semua signifikan: Direct_Answer r = 0.185, Summarizing r = 0.151, Debugging r = 0.132, Ideation r = 0.126, Copywriting r = 0.122.
 
             **Q7: Paid_Subscription vs Post_Semester_GPA**  
-            Welch t-test: t = -1.24, p = 0.216, Cohen d = -0.011  
-            Tidak signifikan. Free (M = 3.347) vs Premium (M = 3.353).
+            Welch t = -1.24, p = 0.216, Cohen d = -0.011. Tidak signifikan.
             """)
 
     c1, c2 = st.columns(2)
@@ -117,9 +117,9 @@ with tab2:
                      title="Q7: GPA Akhir: Gratis vs Premium")
         st.plotly_chart(fig, use_container_width=True)
 
-# ── Tab 3: Kesehatan Mental (Q3, Q4) ───────────────────────
+# ── Tab 3: Kesehatan Mental ────────────────────────────────
 with tab3:
-    st.header("Kesehatan Mental & Kebijakan Institusi")
+    st.header("Kesehatan Mental: Burnout & Kecemasan per Kebijakan")
 
     with st.expander("Apa artinya?", expanded=False):
         st.warning("Kebijakan Strict_Ban tidak menaikkan GPA, tapi membuat mahasiswa 19% lebih cemas saat ujian. Burnout paling dipengaruhi oleh jam AI yang tinggi dan rasa ketergantungan pada AI, bukan oleh bidang studi atau jenjang.")
@@ -132,7 +132,7 @@ with tab3:
 
             **Q3b: Institutional_Policy vs Anxiety**  
             One-way ANOVA: F(2, 49997) = 511.79, p = 0.000, eta2 = 0.020 (kecil)  
-            Tukey HSD: Strict_Ban (M = 4.886) 0.76 poin lebih tinggi dari dua lainnya (M = 4.12)
+            Tukey HSD: Strict_Ban (M = 4.89) 0.77 poin lebih tinggi dari dua lainnya (M = 4.12)
 
             **Q4: Profil Burnout**  
             Chi-square Burnout vs Major: chi2(8) = 376.3, p = 0.000, Cramer V = 0.06 (lemah)  
@@ -190,9 +190,9 @@ with tab3:
                      category_orders={"Burnout_Risk_Level": ["Low", "Medium", "High"]})
         st.plotly_chart(fig, use_container_width=True)
 
-# ── Tab 4: Retensi Pengetahuan (Q2) ────────────────────────
+# ── Tab 4: Retensi Pengetahuan ─────────────────────────────
 with tab4:
-    st.header("Retensi Pengetahuan & Ketergantungan AI")
+    st.header("Retensi Pengetahuan: Korelasi dengan Ketergantungan AI")
 
     with st.expander("Apa artinya?", expanded=False):
         st.warning("Semakin tinggi ketergantungan mahasiswa pada AI, semakin rendah skor retensi pengetahuannya. Efeknya kecil tapi konsisten. Mahasiswa dengan ketergantungan tinggi perlu intervensi pengembangan kemandirian belajar.")
@@ -218,40 +218,41 @@ with tab4:
                      category_orders={"Dependency_Level": ["Rendah (1-3)", "Sedang (4-7)", "Tinggi (8-10)"]})
         st.plotly_chart(fig, use_container_width=True)
 
-# ── Tab 5: Pola Belajar (Q6) ───────────────────────────────
+# ── Tab 5: Profil Risiko ────────────────────────────────────
 with tab5:
-    st.header("Pola Belajar & Performa Akademik")
+    st.header("Profil Risiko: Segmentasi AI Dependency × Burnout")
 
     with st.expander("Apa artinya?", expanded=False):
-        st.success("Jam belajar tradisional selalu berkorelasi positif dengan GPA, apapun tipe penggunaan AI-nya. Mahasiswa yang minta jawaban langsung dari AI justru paling diuntungkan oleh belajar tradisional (r = 0.185). Belajar mandiri tetap penting.")
-        with st.expander("Detail Statistik"):
-            st.markdown("""
-            **Q6: Traditional_Study_Hours vs Post_GPA per Primary_Use_Case**  
-            Pearson r per use case (semua signifikan dengan Bonferroni):  
-            Direct_Answer_Generation: r = 0.185, r2 = 0.034  
-            Debugging/Troubleshooting: r = 0.132, r2 = 0.017  
-            Summarizing_Reading: r = 0.151, r2 = 0.023  
-            Ideation: r = 0.126, r2 = 0.016  
-            Copywriting/Drafting: r = 0.122, r2 = 0.015  
-            Semua p = 0.000. Belajar tradisional menjelaskan 1.5-3.4% varians GPA.
-            """)
+        st.error("Mahasiswa dengan penggunaan AI berat (>15 jam/minggu) jauh lebih rentan terkena burnout: 64,8% di antaranya masuk kategori Burnout High, dibanding hanya 10,5% pada pengguna ringan. Sebaliknya, segmen Sedang (5-15 jam/minggu) justru menunjukkan profil paling optimal dengan GPA dan retensi keahlian tertinggi di antara ketiga segmen. Semakin tinggi intensitas AI, semakin besar risiko burnout tanpa peningkatan GPA yang berarti.")
 
-    use_cases = sorted(df_f["Primary_Use_Case"].unique())
-    cols = st.columns(min(len(use_cases), 5))
+    # ── Stacked bar: AI_Usage_Segment × Burnout ──
+    st.subheader("Burnout per Segmen Penggunaan AI")
+    burnout_order = ["Low", "Medium", "High"]
+    ct_seg = pd.crosstab(df_f["AI_Usage_Segment"], df_f["Burnout_Risk_Level"], normalize="index") * 100
+    ct_seg = ct_seg.reindex(["Ringan (0-5)", "Sedang (5-15)", "Berat (>15)"], columns=burnout_order)
+    fig = px.bar(ct_seg.reset_index(), x="AI_Usage_Segment", y=burnout_order,
+                 title="Proporsi Burnout per Segmen AI", barmode="stack",
+                 color_discrete_sequence=["#2ecc71", "#f1c40f", "#e74c3c"])
+    fig.update_layout(legend_title="Burnout Risk", yaxis_title="Persentase (%)")
+    st.plotly_chart(fig, use_container_width=True)
 
-    for i, uc in enumerate(use_cases):
-        sub = df_f[df_f["Primary_Use_Case"] == uc]
-        r = sub["Traditional_Study_Hours"].corr(sub["Post_Semester_GPA"])
-        with cols[i % 5]:
-            fig = px.scatter(
-                sub, x="Traditional_Study_Hours", y="Post_Semester_GPA",
-                opacity=0.4, trendline="ols",
-                trendline_color_override="#e74c3c",
-                title=f"{uc}<br>r = {r:.3f}",
-                height=400,
-            )
-            fig.update_traces(marker=dict(size=4, color="#2c3e50"), selector=dict(mode="markers"))
-            fig.update_layout(title_font_size=12, margin=dict(l=10, r=10, t=40, b=10))
-            st.plotly_chart(fig, use_container_width=True)
+    # ── GPA & Retensi per Segmen ──
+    st.subheader("Metrik Outcome per Segmen Penggunaan AI")
+    c1, c2 = st.columns(2)
+    with c1:
+        seg_order = ["Ringan (0-5)", "Sedang (5-15)", "Berat (>15)"]
+        seg_gpa = df_f.groupby("AI_Usage_Segment")["Post_Semester_GPA"].mean().reindex(seg_order).round(3)
+        fig = px.bar(seg_gpa.reset_index(), x="AI_Usage_Segment", y="Post_Semester_GPA",
+                     color="AI_Usage_Segment", text_auto=".3f",
+                     title="Rata-rata GPA per Segmen AI",
+                     category_orders={"AI_Usage_Segment": seg_order})
+        st.plotly_chart(fig, use_container_width=True)
+    with c2:
+        seg_skill = df_f.groupby("AI_Usage_Segment")["Skill_Retention_Score"].mean().reindex(seg_order).round(1)
+        fig = px.bar(seg_skill.reset_index(), x="AI_Usage_Segment", y="Skill_Retention_Score",
+                     color="AI_Usage_Segment", text_auto=".1f",
+                     title="Rata-rata Retensi Keahlian per Segmen AI",
+                     category_orders={"AI_Usage_Segment": seg_order})
+        st.plotly_chart(fig, use_container_width=True)
 
 st.caption(f"Baris setelah filter: {len(df_f):,} / {len(df):,}")
