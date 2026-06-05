@@ -117,6 +117,26 @@ with tab2:
                      title="Q7: GPA Akhir: Gratis vs Premium")
         st.plotly_chart(fig, use_container_width=True)
 
+    # ── Q6: Traditional Study Hours per Use Case ──
+    st.markdown("---")
+    st.subheader("Q6: Jam Belajar Tradisional vs GPA per Tipe Penggunaan AI")
+    use_cases = sorted(df_f["Primary_Use_Case"].unique())
+    cols = st.columns(min(len(use_cases), 5))
+    for i, uc in enumerate(use_cases):
+        sub = df_f[df_f["Primary_Use_Case"] == uc]
+        r = sub["Traditional_Study_Hours"].corr(sub["Post_Semester_GPA"])
+        with cols[i % 5]:
+            fig = px.scatter(
+                sub, x="Traditional_Study_Hours", y="Post_Semester_GPA",
+                opacity=0.4, trendline="ols",
+                trendline_color_override="#e74c3c",
+                title=f"{uc}<br>r = {r:.3f}",
+                height=400,
+            )
+            fig.update_traces(marker=dict(size=4, color="#2c3e50"), selector=dict(mode="markers"))
+            fig.update_layout(title_font_size=12, margin=dict(l=10, r=10, t=40, b=10))
+            st.plotly_chart(fig, use_container_width=True)
+
 # ── Tab 3: Kesehatan Mental ────────────────────────────────
 with tab3:
     st.header("Kesehatan Mental: Burnout & Kecemasan per Kebijakan")
