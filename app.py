@@ -97,24 +97,76 @@ with tab2:
 
     c1, c2 = st.columns(2)
     with c1:
-        fig = px.box(df_f, x="AI_Usage_Segment", y="Post_Semester_GPA",
-                     color="AI_Usage_Segment",
-                     title="Q1: GPA Akhir per Segmen Penggunaan AI",
+        df_q1 = df_f.melt(id_vars=["AI_Usage_Segment"],
+                          value_vars=["Pre_Semester_GPA", "Post_Semester_GPA"],
+                          var_name="GPA_Type", value_name="GPA")
+        df_q1["GPA_Type"] = df_q1["GPA_Type"].str.replace("_Semester_", " ").str.replace("_", " ")
+        fig = px.box(df_q1, x="AI_Usage_Segment", y="GPA",
+                     color="GPA_Type",
+                     title="Q1: GPA Pre vs Post per Segmen Penggunaan AI",
                      category_orders={"AI_Usage_Segment": ["Ringan (0-5)", "Sedang (5-15)", "Berat (>15)"]})
         st.plotly_chart(fig, use_container_width=True)
     with c2:
+        df_q5 = df_f.melt(id_vars=["Primary_Use_Case"],
+                          value_vars=["Pre_Semester_GPA", "Post_Semester_GPA"],
+                          var_name="GPA_Type", value_name="GPA")
+        df_q5["GPA_Type"] = df_q5["GPA_Type"].str.replace("_Semester_", " ").str.replace("_", " ")
         med_order = df_f.groupby("Primary_Use_Case")["Post_Semester_GPA"].median().sort_values().index.tolist()
-        fig = px.box(df_f, x="Primary_Use_Case", y="Post_Semester_GPA",
-                     color="Primary_Use_Case", category_orders={"Primary_Use_Case": med_order},
-                     title="Q5: GPA Akhir per Tipe Penggunaan AI")
+        fig = px.box(df_q5, x="Primary_Use_Case", y="GPA",
+                     color="GPA_Type", category_orders={"Primary_Use_Case": med_order},
+                     title="Q5: GPA Pre vs Post per Tipe Penggunaan AI")
         fig.update_xaxes(tickangle=20)
         st.plotly_chart(fig, use_container_width=True)
 
     c3, _ = st.columns([1, 2])
     with c3:
-        fig = px.box(df_f, x="Paid_Subscription", y="Post_Semester_GPA",
-                     color="Paid_Subscription",
-                     title="Q7: GPA Akhir: Gratis vs Premium")
+        df_q7 = df_f.melt(id_vars=["Paid_Subscription"],
+                          value_vars=["Pre_Semester_GPA", "Post_Semester_GPA"],
+                          var_name="GPA_Type", value_name="GPA")
+        df_q7["GPA_Type"] = df_q7["GPA_Type"].str.replace("_Semester_", " ").str.replace("_", " ")
+        fig = px.box(df_q7, x="Paid_Subscription", y="GPA",
+                     color="GPA_Type",
+                     title="Q7: GPA Pre vs Post: Gratis vs Premium")
+        st.plotly_chart(fig, use_container_width=True)
+
+    # ── Delta (Post - Pre) ──
+    st.markdown("---")
+    st.subheader("Δ GPA (Post − Pre) per Kelompok")
+
+    def make_delta_df(group_col):
+        pivot = df_f.groupby(group_col).agg(
+            Pre=("Pre_Semester_GPA", "mean"),
+            Post=("Post_Semester_GPA", "mean"),
+        ).round(3)
+        pivot["Δ (Post−Pre)"] = (pivot["Post"] - pivot["Pre"]).round(3)
+        return pivot.reset_index()
+
+    d1, d2 = st.columns(2)
+    with d1:
+        delta_q1 = make_delta_df("AI_Usage_Segment")
+        fig = px.bar(delta_q1, x="AI_Usage_Segment", y="Δ (Post−Pre)",
+                     text_auto="+.3f", color="AI_Usage_Segment",
+                     title="Δ GPA per Segmen Penggunaan AI",
+                     category_orders={"AI_Usage_Segment": ["Ringan (0-5)", "Sedang (5-15)", "Berat (>15)"]})
+        fig.update_traces(textposition="outside")
+        st.plotly_chart(fig, use_container_width=True)
+    with d2:
+        delta_q5 = make_delta_df("Primary_Use_Case")
+        delta_q5 = delta_q5.sort_values("Δ (Post−Pre)", ascending=False)
+        fig = px.bar(delta_q5, x="Primary_Use_Case", y="Δ (Post−Pre)",
+                     text_auto="+.3f", color="Primary_Use_Case",
+                     title="Δ GPA per Tipe Penggunaan AI")
+        fig.update_traces(textposition="outside")
+        fig.update_xaxes(tickangle=20)
+        st.plotly_chart(fig, use_container_width=True)
+
+    d3, _ = st.columns([1, 2])
+    with d3:
+        delta_q7 = make_delta_df("Paid_Subscription")
+        fig = px.bar(delta_q7, x="Paid_Subscription", y="Δ (Post−Pre)",
+                     text_auto="+.3f", color="Paid_Subscription",
+                     title="Δ GPA: Gratis vs Premium")
+        fig.update_traces(textposition="outside")
         st.plotly_chart(fig, use_container_width=True)
 
     # ── Q6: Traditional Study Hours per Use Case ──
@@ -167,9 +219,26 @@ with tab3:
 
     c1, c2 = st.columns(2)
     with c1:
-        fig = px.box(df_f, x="Institutional_Policy", y="Post_Semester_GPA",
-                     color="Institutional_Policy",
-                     title="Q3a: GPA Akhir per Kebijakan Institusi")
+        df_q3a = df_f.melt(id_vars=["Institutional_Policy"],
+                           value_vars=["Pre_Semester_GPA", "Post_Semester_GPA"],
+                           var_name="GPA_Type", value_name="GPA")
+        df_q3a["GPA_Type"] = df_q3a["GPA_Type"].str.replace("_Semester_", " ").str.replace("_", " ")
+        fig = px.box(df_q3a, x="Institutional_Policy", y="GPA",
+                     color="GPA_Type",
+                     title="Q3a: GPA Pre vs Post per Kebijakan Institusi")
+        st.plotly_chart(fig, use_container_width=True)
+
+        # Delta Q3a
+        delta_q3a = df_f.groupby("Institutional_Policy").agg(
+            Pre=("Pre_Semester_GPA", "mean"),
+            Post=("Post_Semester_GPA", "mean"),
+        ).round(3)
+        delta_q3a["Δ (Post−Pre)"] = (delta_q3a["Post"] - delta_q3a["Pre"]).round(3)
+        delta_q3a = delta_q3a.reset_index()
+        fig = px.bar(delta_q3a, x="Institutional_Policy", y="Δ (Post−Pre)",
+                     text_auto="+.3f", color="Institutional_Policy",
+                     title="Δ GPA per Kebijakan Institusi")
+        fig.update_traces(textposition="outside")
         st.plotly_chart(fig, use_container_width=True)
     with c2:
         fig = px.box(df_f, x="Institutional_Policy", y="Anxiety_Level_During_Exams",
@@ -227,9 +296,12 @@ with tab4:
 
     c1, c2 = st.columns(2)
     with c1:
-        fig = px.scatter(df_f, x="Perceived_AI_Dependency", y="Skill_Retention_Score",
-                         opacity=0.15, trendline="ols",
-                         title="Q2: Ketergantungan AI vs Skor Retensi Keahlian")
+        df_q2 = df_f.copy()
+        df_q2["Perceived_AI_Dependency"] = df_q2["Perceived_AI_Dependency"].astype(str)
+        fig = px.box(df_q2, x="Perceived_AI_Dependency", y="Skill_Retention_Score",
+                     color="Perceived_AI_Dependency",
+                     color_discrete_sequence=px.colors.sequential.RdBu_r,
+                     title="Q2: Ketergantungan AI vs Skor Retensi Keahlian")
         st.plotly_chart(fig, use_container_width=True)
     with c2:
         fig = px.box(df_f, x="Dependency_Level", y="Skill_Retention_Score",
