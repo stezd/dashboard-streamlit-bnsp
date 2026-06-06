@@ -288,10 +288,11 @@ with tab4:
         with st.expander("Detail Statistik"):
             st.markdown("""
             **Q2: Perceived_AI_Dependency vs Skill_Retention_Score**  
-            Pearson r = -0.0843, p = 0.000, r2 = 0.007 (kecil)  
+            Spearman ρ = -0.0843, p = 0.000, ρ² = 0.007 (kecil)  
             Signifikan dengan Bonferroni correction (alpha = 0.05/7).  
             Hanya 0.7% varians Skill_Retention dijelaskan oleh Perceived_AI_Dependency.  
-            Boxplot: Low dependency (M = 77.8), Medium (M = 75.0), High (M = 72.9).
+            Boxplot: Low dependency (M = 77.8), Medium (M = 75.0), High (M = 72.9).  
+            *(Menggunakan Spearman karena Perceived_AI_Dependency adalah integer/ordinal.)*
             """)
 
     c1, c2 = st.columns(2)
