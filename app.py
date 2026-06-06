@@ -333,10 +333,16 @@ with tab5:
     c1, c2 = st.columns(2)
     with c1:
         seg_order = ["Ringan (0-5)", "Sedang (5-15)", "Berat (>15)"]
-        seg_gpa = df_f.groupby("AI_Usage_Segment")["Post_Semester_GPA"].mean().reindex(seg_order).round(3)
-        fig = px.bar(seg_gpa.reset_index(), x="AI_Usage_Segment", y="Post_Semester_GPA",
-                     color="AI_Usage_Segment", text_auto=".3f",
-                     title="Rata-rata GPA per Segmen AI",
+        seg_gpa = df_f.groupby("AI_Usage_Segment").agg(
+            Pre=("Pre_Semester_GPA", "mean"),
+            Post=("Post_Semester_GPA", "mean"),
+        ).reindex(seg_order).round(3).reset_index()
+        seg_gpa_melt = seg_gpa.melt(id_vars=["AI_Usage_Segment"],
+                                     value_vars=["Pre", "Post"],
+                                     var_name="GPA_Type", value_name="GPA")
+        fig = px.bar(seg_gpa_melt, x="AI_Usage_Segment", y="GPA",
+                     color="GPA_Type", barmode="group", text_auto=".3f",
+                     title="Rata-rata GPA Pre vs Post per Segmen AI",
                      category_orders={"AI_Usage_Segment": seg_order})
         st.plotly_chart(fig, use_container_width=True)
     with c2:
